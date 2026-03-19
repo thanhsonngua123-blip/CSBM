@@ -1,9 +1,4 @@
 ﻿var crypto = require('crypto');
-// ============================================================
-// AES-128 - Triá»ƒn khai thá»§ cÃ´ng (khÃ´ng dÃ¹ng thÆ° viá»‡n crypto)
-// ============================================================
-
-// ---- Báº¢NG TRA Cá»¨U (HARDCODE) ----
 
 var Sbox = [
   0x63,0x7c,0x77,0x7b,0xf2,0x6b,0x6f,0xc5,0x30,0x01,0x67,0x2b,0xfe,0xd7,0xab,0x76,
@@ -47,9 +42,6 @@ var Rcon = [0x01,0x02,0x04,0x08,0x10,0x20,0x40,0x80,0x1b,0x36];
 var textEncoder = new TextEncoder();
 var textDecoder = new TextDecoder('utf-8');
 
-// ---- HÃ€M TIá»†N ÃCH ----
-
-// Äáº¿m Ä‘á»™ dÃ i chuá»—i hoáº·c máº£ng (khÃ´ng dÃ¹ng .length)
 function layDoDai(data) {
   var dem = 0;
   while (data[dem] !== undefined) {
@@ -58,7 +50,7 @@ function layDoDai(data) {
   return dem;
 }
 
-// Chuyá»ƒn chuá»—i thÃ nh máº£ng byte
+
 function chuoiSangBytes(str) {
   var encoded = textEncoder.encode(str);
   var bytes = [];
@@ -68,7 +60,7 @@ function chuoiSangBytes(str) {
   return bytes;
 }
 
-// Chuyá»ƒn máº£ng byte thÃ nh chuá»—i (bá» padding 0 á»Ÿ cuá»‘i)
+
 function bytesSangChuoi(bytes) {
   var len = layDoDai(bytes);
   var cleanBytes = [];

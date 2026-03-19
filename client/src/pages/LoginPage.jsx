@@ -1,29 +1,10 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-
-const loginSchema = z.object({
-  username: z
-    .string()
-    .trim()
-    .min(1, 'Tên đăng nhập không được để trống')
-    .min(3, 'Tên đăng nhập phải có ít nhất 3 ký tự'),
-  password: z
-    .string()
-    .min(1, 'Mật khẩu không được để trống')
-    .min(6, 'Mật khẩu phải có ít nhất 6 ký tự'),
-});
-
-function FieldError({ message }) {
-  if (!message) {
-    return null;
-  }
-
-  return <p className="mt-1 text-sm text-red-600">{message}</p>;
-}
+import FieldError from '../components/form/FieldError';
+import { useAuth } from '../hooks/useAuth';
+import { loginSchema } from '../validations/login.schema';
 
 function LoginPage() {
   const [submitError, setSubmitError] = useState('');
@@ -34,14 +15,14 @@ function LoginPage() {
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors }
   } = useForm({
     resolver: zodResolver(loginSchema),
     mode: 'onChange',
     defaultValues: {
       username: '',
-      password: '',
-    },
+      password: ''
+    }
   });
 
   const onSubmit = async (formData) => {
@@ -112,3 +93,4 @@ function LoginPage() {
 }
 
 export default LoginPage;
+
