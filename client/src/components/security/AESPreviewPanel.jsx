@@ -1,4 +1,12 @@
-﻿import ResultBlock from './ResultBlock';
+import ResultBlock from './ResultBlock';
+
+function MetaBadge({ label, value }) {
+  return (
+    <div className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs text-slate-700">
+      <span className="font-semibold text-slate-900">{label}:</span> {value}
+    </div>
+  );
+}
 
 function AESPreviewPanel({ preview, loading, inputValue, onRefresh }) {
   return (
@@ -7,9 +15,7 @@ function AESPreviewPanel({ preview, loading, inputValue, onRefresh }) {
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Khu vực AES</p>
           <h2 className="mt-2 text-xl font-semibold text-slate-900">Mã hóa và giải mã theo hệ thống hiện tại</h2>
-          <p className="mt-2 text-sm leading-6 text-slate-600">
-            Trang này đang dùng trực tiếp <code>encryptAES</code> và <code>decryptAES</code>. Với cùng dữ liệu và cùng key, ciphertext sẽ giữ nguyên giữa các lần mã hóa lại.
-          </p>
+          
         </div>
         <button
           type="button"
@@ -21,8 +27,18 @@ function AESPreviewPanel({ preview, loading, inputValue, onRefresh }) {
         </button>
       </div>
 
+      <div className="mt-5 flex flex-wrap gap-2">
+        <MetaBadge label="Mode" value={preview?.aes?.mode || 'AES-CBC'} />
+        <MetaBadge label="Padding" value={preview?.aes?.padding || 'PKCS#7'} />
+        <MetaBadge label="Integrity" value={preview?.aes?.integrity || 'HMAC-SHA256'} />
+        <MetaBadge label="Format" value={`${preview?.aes?.version || 'v2'}$iv$cipher$mac`} />
+      </div>
+
       <div className="mt-5 grid gap-3">
-        <ResultBlock label="Ciphertext" value={preview?.aes?.ciphertext} mono />
+        <ResultBlock label="IV" value={preview?.aes?.iv} mono />
+        <ResultBlock label="Cipher (khối mã hóa)" value={preview?.aes?.cipher} mono />
+        <ResultBlock label="HMAC" value={preview?.aes?.mac} mono />
+        <ResultBlock label="Ciphertext đầy đủ" value={preview?.aes?.ciphertext} mono />
         <ResultBlock label="Giải mã lại" value={preview?.aes?.decrypted} mono />
       </div>
     </section>

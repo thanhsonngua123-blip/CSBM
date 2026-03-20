@@ -1,5 +1,3 @@
-// Script seed data: tạo 1 admin và 1 staff
-// Chạy: node database/seed.js
 
 require('dotenv').config();
 const bcrypt = require('bcryptjs');
@@ -20,12 +18,12 @@ async function seed() {
       ['staff', staffPassword, 'staff']
     );
 
-    console.log('Seed data thành công!');
+    console.log('Seed data thÃ nh cÃ´ng!');
     console.log('  admin / admin123');
     console.log('  staff / staff123');
     process.exit(0);
   } catch (err) {
-    console.error('Lỗi seed:', err.message);
+    console.error('Lá»—i seed:', err.message);
     process.exit(1);
   }
 }

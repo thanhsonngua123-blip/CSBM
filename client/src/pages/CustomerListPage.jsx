@@ -1,9 +1,10 @@
-﻿import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import ConfirmDialog from '../components/ConfirmDialog';
 import CustomerTable from '../components/CustomerTable';
 import SearchBar from '../components/SearchBar';
 import CustomerListHeader from '../components/customer-list/CustomerListHeader';
-import RawModeToggle from '../components/customer-list/RawModeToggle';
+import CustomerPagination from '../components/customer-list/CustomerPagination';
+import ImportSummary from '../components/customer-list/ImportSummary';
 import { useAuth } from '../hooks/useAuth';
 import { useCustomerList } from '../hooks/useCustomerList';
 
@@ -17,12 +18,17 @@ function CustomerListPage() {
     deleteTarget,
     deletingId,
     exporting,
-    showRawDb,
+    importing,
+    importSummary,
+    pagination,
     setDeleteTarget,
+    setImportSummary,
     handleSearch,
+    goToPreviousPage,
+    goToNextPage,
     handleDelete,
     handleExportExcel,
-    handleRawModeChange
+    handleImportExcel
   } = useCustomerList();
 
   const isAdmin = user?.role === 'admin';
@@ -31,28 +37,20 @@ function CustomerListPage() {
     <>
       <div className="space-y-4">
         <CustomerListHeader
-          customerCount={customers.length}
+          customerCount={pagination.total}
           canViewAuditLogs={isAdmin}
           onOpenAuditLogs={() => navigate('/audit-logs')}
+          onImportExcel={handleImportExcel}
           onExportExcel={handleExportExcel}
+          importing={importing}
           exporting={exporting}
           loading={loading}
           onAddCustomer={() => navigate('/customers/new')}
         />
 
-        {isAdmin ? (
-          <RawModeToggle checked={showRawDb} onChange={handleRawModeChange} />
-        ) : null}
-
         <div className="rounded-xl border border-slate-200 bg-white p-4">
           <SearchBar onSearch={handleSearch} />
         </div>
-
-        {showRawDb ? (
-          <div className="rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-            X-Ray Mode đang bật. Bảng hiện hiển thị ciphertext gốc của các trường mã hóa từ CSDL.
-          </div>
-        ) : null}
 
         {error ? (
           <div className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
@@ -65,7 +63,13 @@ function CustomerListPage() {
           loading={loading}
           deletingId={deletingId}
           onDelete={setDeleteTarget}
-          showRawDb={showRawDb}
+        />
+
+        <CustomerPagination
+          pagination={pagination}
+          loading={loading}
+          onPrevious={goToPreviousPage}
+          onNext={goToNextPage}
         />
       </div>
 
@@ -86,9 +90,10 @@ function CustomerListPage() {
         }}
         onConfirm={handleDelete}
       />
+
+      <ImportSummary summary={importSummary} onClose={() => setImportSummary(null)} />
     </>
   );
 }
 
 export default CustomerListPage;
-

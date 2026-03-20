@@ -1,0 +1,6 @@
+USE csbm_db;
+
+ALTER TABLE customers
+  MODIFY email VARCHAR(768) NOT NULL,
+  MODIFY phone VARCHAR(512) NULL,
+  MODIFY id_number VARCHAR(512) NOT NULL;

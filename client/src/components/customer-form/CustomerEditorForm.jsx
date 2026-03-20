@@ -14,7 +14,7 @@ function CustomerEditorForm({
   } = form;
 
   return (
-    <form onSubmit={onSubmit} className="rounded-xl border border-slate-200 bg-white p-6">
+    <form onSubmit={onSubmit} noValidate className="rounded-xl border border-slate-200 bg-white p-6">
       {showMaskedSensitiveHint ? (
         <div className="mb-4 rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
           Với các trường đang hiển thị dấu <code>*</code>, nếu giữ nguyên rồi bấm lưu thì hệ thống sẽ giữ nguyên dữ liệu cũ. Chỉ khi bạn xóa và nhập giá trị mới thì dữ liệu mới mới được lưu.
@@ -36,7 +36,9 @@ function CustomerEditorForm({
         <label>
           <span className="mb-2 block text-sm font-medium text-slate-700">Email *</span>
           <input
-            type="email"
+            type={showMaskedSensitiveHint ? 'text' : 'email'}
+            inputMode="email"
+            autoComplete="email"
             {...register('email')}
             className="w-full rounded-md border border-slate-300 px-3 py-2.5 text-sm text-slate-900 outline-none focus:border-slate-500"
             placeholder="example@gmail.com"

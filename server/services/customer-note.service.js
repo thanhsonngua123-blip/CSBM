@@ -1,4 +1,48 @@
-﻿const pool = require('../config/db');
+const pool = require('../config/db');
+const { encryptAES, decryptAES } = require('../utils/encryption');
+const { maskSensitiveText } = require('../utils/masking');
+
+const AES_KEY = process.env.AES_SECRET_KEY;
+
+function normalizeText(value) {
+  if (value === undefined || value === null) {
+    return '';
+  }
+
+  return String(value).trim();
+}
+
+function encryptNoteContent(value) {
+  const normalized = normalizeText(value);
+
+  if (!normalized) {
+    return null;
+  }
+
+  if (!AES_KEY) {
+    return normalized;
+  }
+
+  return encryptAES(normalized, AES_KEY);
+}
+
+function decryptNoteContent(value) {
+  const normalized = normalizeText(value);
+
+  if (!normalized) {
+    return '';
+  }
+
+  if (!AES_KEY) {
+    return normalized;
+  }
+
+  try {
+    return decryptAES(normalized, AES_KEY);
+  } catch (error) {
+    throw new Error('Du lieu ghi chu da bi sua hoac khong hop le');
+  }
+}
 
 async function getCustomerById(customerId) {
   const [rows] = await pool.query(
@@ -14,10 +58,24 @@ async function getCustomerById(customerId) {
 }
 
 function normalizeContent(value) {
-  return typeof value === 'string' ? value.trim() : '';
+  return normalizeText(value);
 }
 
-async function getByCustomerId(customerId) {
+function formatNote(row, role) {
+  const decryptedContent = row.content ? decryptNoteContent(row.content) : '';
+
+  return {
+    id: row.id,
+    customer_id: row.customer_id,
+    user_id: row.user_id,
+    content: role === 'staff' ? maskSensitiveText(decryptedContent) : decryptedContent,
+    created_at: row.created_at,
+    username: row.username,
+    role: row.role
+  };
+}
+
+async function getByCustomerId(customerId, role) {
   await getCustomerById(customerId);
 
   const [rows] = await pool.query(
@@ -36,10 +94,10 @@ async function getByCustomerId(customerId) {
     [customerId]
   );
 
-  return rows;
+  return rows.map((row) => formatNote(row, role));
 }
 
-async function create({ customerId, userId, content }) {
+async function create({ customerId, userId, content, role }) {
   const customer = await getCustomerById(customerId);
   const normalizedContent = normalizeContent(content);
 
@@ -49,7 +107,7 @@ async function create({ customerId, userId, content }) {
 
   const [result] = await pool.query(
     'INSERT INTO customer_notes (customer_id, user_id, content) VALUES (?, ?, ?)',
-    [customerId, userId, normalizedContent]
+    [customerId, userId, encryptNoteContent(normalizedContent)]
   );
 
   const [rows] = await pool.query(
@@ -68,7 +126,7 @@ async function create({ customerId, userId, content }) {
   );
 
   return {
-    note: rows[0],
+    note: formatNote(rows[0], role),
     customer_name: customer.full_name
   };
 }

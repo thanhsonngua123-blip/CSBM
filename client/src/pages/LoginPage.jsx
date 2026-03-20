@@ -18,7 +18,8 @@ function LoginPage() {
     formState: { errors }
   } = useForm({
     resolver: zodResolver(loginSchema),
-    mode: 'onChange',
+    mode: 'onSubmit',
+    reValidateMode: 'onSubmit',
     defaultValues: {
       username: '',
       password: ''

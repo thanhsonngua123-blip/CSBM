@@ -1,9 +1,9 @@
-﻿const customerNoteService = require('../services/customer-note.service');
+const customerNoteService = require('../services/customer-note.service');
 const auditService = require('../services/audit.service');
 
 async function getByCustomerId(req, res) {
   try {
-    const notes = await customerNoteService.getByCustomerId(Number(req.params.id));
+    const notes = await customerNoteService.getByCustomerId(Number(req.params.id), req.user.role);
     res.json(notes);
   } catch (err) {
     if (err.message === 'Khong tim thay khach hang') {
@@ -25,7 +25,8 @@ async function create(req, res) {
     const result = await customerNoteService.create({
       customerId: Number(req.params.id),
       userId: req.user.id,
-      content
+      content,
+      role: req.user.role
     });
 
     await auditService.createLog({

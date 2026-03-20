@@ -1,8 +1,4 @@
-// ============================================================
-// Masking - Che dữ liệu nhạy cảm (không dùng hàm có sẵn)
-// ============================================================
 
-// Đếm độ dài chuỗi (không dùng .length)
 function layDoDai(str) {
   var dem = 0;
   while (str[dem] !== undefined) {
@@ -11,7 +7,6 @@ function layDoDai(str) {
   return dem;
 }
 
-// Cắt chuỗi từ vị trí start đến end (không bao gồm end)
 function catChuoi(str, start, end) {
   var ketQua = '';
   for (var i = start; i < end; i = i + 1) {
@@ -22,7 +17,6 @@ function catChuoi(str, start, end) {
   return ketQua;
 }
 
-// Lặp ký tự c đúng n lần
 function lapKyTu(c, n) {
   var ketQua = '';
   for (var i = 0; i < n; i = i + 1) {
@@ -31,29 +25,154 @@ function lapKyTu(c, n) {
   return ketQua;
 }
 
-// "0987654321" → "0987****21"
+function timViTriKyTu(str, kyTu) {
+  var i = 0;
+  while (str[i] !== undefined) {
+    if (str[i] === kyTu) {
+      return i;
+    }
+    i = i + 1;
+  }
+  return -1;
+}
+
+function timViTriKyTuCuoi(str, kyTu) {
+  var viTri = -1;
+  var i = 0;
+  while (str[i] !== undefined) {
+    if (str[i] === kyTu) {
+      viTri = i;
+    }
+    i = i + 1;
+  }
+  return viTri;
+}
+
+function laChuSo(c) {
+  return c >= '0' && c <= '9';
+}
+
+function demChuSo(str) {
+  var dem = 0;
+  var i = 0;
+  while (str[i] !== undefined) {
+    if (laChuSo(str[i])) {
+      dem = dem + 1;
+    }
+    i = i + 1;
+  }
+  return dem;
+}
+
+function maskChuoiTheoChuSo(str, soDau, soCuoi) {
+  var tongChuSo = demChuSo(str);
+  if (tongChuSo < soDau + soCuoi) {
+    return lapKyTu('*', 4);
+  }
+
+  var ketQua = '';
+  var daGap = 0;
+  var i = 0;
+
+  while (str[i] !== undefined) {
+    if (laChuSo(str[i])) {
+      daGap = daGap + 1;
+      if (daGap <= soDau || daGap > tongChuSo - soCuoi) {
+        ketQua = ketQua + str[i];
+      } else {
+        ketQua = ketQua + '*';
+      }
+    } else {
+      ketQua = ketQua + str[i];
+    }
+
+    i = i + 1;
+  }
+
+  return ketQua;
+}
+
 function maskPhone(phone) {
-  var len = layDoDai(phone);
-  if (len < 6) return lapKyTu('*', 4);
-  var dau = catChuoi(phone, 0, 4);
-  var cuoi = catChuoi(phone, len - 2, len);
-  return dau + lapKyTu('*', 4) + cuoi;
+  if (demChuSo(phone) < 6) {
+    return lapKyTu('*', 4);
+  }
+
+  return maskChuoiTheoChuSo(phone, 4, 2);
 }
 
-// "012345678901" → "********8901"
 function maskIdNumber(idNumber) {
-  var len = layDoDai(idNumber);
-  if (len < 4) return lapKyTu('*', 4);
-  var cuoi = catChuoi(idNumber, len - 4, len);
-  return lapKyTu('*', 8) + cuoi;
+  if (demChuSo(idNumber) === 0) {
+    return lapKyTu('*', 4);
+  }
+
+  return maskChuoiTheoChuSo(idNumber, 0, 0);
 }
 
-// "123 Đường ABC, Quận 1" → "123 Đường ****"
+function maskEmail(email) {
+  var len = layDoDai(email);
+  var viTriA = timViTriKyTu(email, '@');
+
+  if (viTriA <= 0 || viTriA >= len - 1) {
+    return lapKyTu('*', 6);
+  }
+
+  var phanTen = catChuoi(email, 0, viTriA);
+  var phanMien = catChuoi(email, viTriA + 1, len);
+  var doDaiTen = layDoDai(phanTen);
+  var doDaiMien = layDoDai(phanMien);
+
+  if (doDaiTen === 0 || doDaiMien === 0) {
+    return lapKyTu('*', 6);
+  }
+
+  var viTriChamCuoi = timViTriKyTuCuoi(phanMien, '.');
+  var tenMien = viTriChamCuoi === -1 ? phanMien : catChuoi(phanMien, 0, viTriChamCuoi);
+  var hauToMien = viTriChamCuoi === -1 ? '' : catChuoi(phanMien, viTriChamCuoi, doDaiMien);
+  var dauTen = catChuoi(phanTen, 0, doDaiTen > 1 ? 2 : 1);
+  var dauMien = layDoDai(tenMien) > 0 ? catChuoi(tenMien, 0, 1) : '';
+
+  return dauTen + lapKyTu('*', 4) + '@' + dauMien + lapKyTu('*', 3) + hauToMien;
+}
+
 function maskAddress(address) {
   var len = layDoDai(address);
-  if (len < 10) return lapKyTu('*', 4);
-  var dau = catChuoi(address, 0, 10);
-  return dau + lapKyTu('*', 4);
+  if (len < 6) {
+    return lapKyTu('*', 6);
+  }
+
+  var dau = catChuoi(address, 0, 6);
+  return dau + lapKyTu('*', 6);
 }
 
-module.exports = { maskPhone, maskIdNumber, maskAddress };
+function maskSensitiveText(text) {
+  if (!text) {
+    return '';
+  }
+
+  var ketQua = text.replace(/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g, function (email) {
+    return maskEmail(email);
+  });
+
+  ketQua = ketQua.replace(/\b0\d{11}\b/g, function (idNumber) {
+    return maskIdNumber(idNumber);
+  });
+
+  ketQua = ketQua.replace(/\+?\d[\d\s.-]{6,}\d/g, function (phone) {
+    var soChuSo = demChuSo(phone);
+    if (soChuSo < 8 || soChuSo > 20) {
+      return phone;
+    }
+
+    return maskPhone(phone);
+  });
+
+  return ketQua;
+}
+
+module.exports = {
+  maskPhone,
+  maskIdNumber,
+  maskEmail,
+  maskAddress,
+  maskSensitiveText
+};

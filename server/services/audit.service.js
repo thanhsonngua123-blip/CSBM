@@ -7,6 +7,26 @@ async function createLog({ userId, action, entityType, entityId, description }) 
   );
 }
 
+async function createLogIfMissing({ userId, action, entityType, entityId, description }) {
+  const [rows] = await pool.query(
+    `SELECT id
+     FROM audit_logs
+     WHERE action = ?
+       AND entity_type = ?
+       AND entity_id <=> ?
+       AND description = ?
+     LIMIT 1`,
+    [action, entityType, entityId || null, description]
+  );
+
+  if (rows.length > 0) {
+    return { created: false, id: rows[0].id };
+  }
+
+  await createLog({ userId, action, entityType, entityId, description });
+  return { created: true };
+}
+
 async function getAll({ page = 1, limit = 10, role, action, sort = 'desc' }) {
   const currentPage = Number(page) > 0 ? Number(page) : 1;
   const pageSize = Number(limit) > 0 ? Number(limit) : 10;
@@ -70,4 +90,4 @@ async function clearAll() {
   return { deleted_count: result.affectedRows };
 }
 
-module.exports = { createLog, getAll, clearAll };
+module.exports = { createLog, createLogIfMissing, getAll, clearAll };

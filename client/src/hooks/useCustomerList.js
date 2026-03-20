@@ -1,6 +1,16 @@
-﻿import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { customerApi } from '../services/api';
 import { downloadBlobResponse } from '../utils/file-download';
+import { readFileAsBase64 } from '../utils/file-upload';
+
+const CUSTOMER_PAGE_SIZE = 10;
+
+const initialPagination = {
+  page: 1,
+  limit: CUSTOMER_PAGE_SIZE,
+  total: 0,
+  total_pages: 1
+};
 
 export function useCustomerList() {
   const [customers, setCustomers] = useState([]);
@@ -10,15 +20,21 @@ export function useCustomerList() {
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [deletingId, setDeletingId] = useState(null);
   const [exporting, setExporting] = useState(false);
-  const [showRawDb, setShowRawDb] = useState(false);
+  const [importing, setImporting] = useState(false);
+  const [importSummary, setImportSummary] = useState(null);
+  const [pagination, setPagination] = useState(initialPagination);
 
-  const fetchCustomers = useCallback(async ({ search = '', rawDb = false } = {}) => {
+  const fetchCustomers = useCallback(async ({ search = '', page = 1 } = {}) => {
     setLoading(true);
     setError('');
 
     try {
-      const res = await customerApi.getAll(search, { rawDb });
-      setCustomers(res.data);
+      const res = await customerApi.getAll(search, {
+        page,
+        limit: CUSTOMER_PAGE_SIZE
+      });
+      setCustomers(res.data.data);
+      setPagination(res.data.pagination);
       setSearchValue(search);
     } catch (err) {
       setError(err.response?.data?.message || 'Không thể tải danh sách khách hàng');
@@ -28,16 +44,27 @@ export function useCustomerList() {
   }, []);
 
   useEffect(() => {
-    void fetchCustomers({ search: '', rawDb: false });
+    void fetchCustomers({ search: '', page: 1 });
   }, [fetchCustomers]);
 
   const handleSearch = async (search) => {
-    await fetchCustomers({ search, rawDb: showRawDb });
+    await fetchCustomers({ search, page: 1 });
   };
 
-  const handleRawModeChange = async (nextValue) => {
-    setShowRawDb(nextValue);
-    await fetchCustomers({ search: searchValue, rawDb: nextValue });
+  const goToPreviousPage = async () => {
+    if (pagination.page <= 1 || loading) {
+      return;
+    }
+
+    await fetchCustomers({ search: searchValue, page: pagination.page - 1 });
+  };
+
+  const goToNextPage = async () => {
+    if (pagination.page >= pagination.total_pages || loading) {
+      return;
+    }
+
+    await fetchCustomers({ search: searchValue, page: pagination.page + 1 });
   };
 
   const handleDelete = async () => {
@@ -49,7 +76,7 @@ export function useCustomerList() {
     try {
       await customerApi.remove(deleteTarget.id);
       setDeleteTarget(null);
-      await fetchCustomers({ search: searchValue, rawDb: showRawDb });
+      await fetchCustomers({ search: searchValue, page: pagination.page });
     } catch (err) {
       setError(err.response?.data?.message || 'Không thể xóa khách hàng');
     } finally {
@@ -71,6 +98,31 @@ export function useCustomerList() {
     }
   };
 
+  const handleImportExcel = async (file) => {
+    if (!file) {
+      return;
+    }
+
+    setImporting(true);
+    setError('');
+    setImportSummary(null);
+
+    try {
+      const fileBase64 = await readFileAsBase64(file);
+      const response = await customerApi.importExcel({
+        file_name: file.name,
+        file_base64: fileBase64
+      });
+
+      setImportSummary(response.data);
+      await fetchCustomers({ search: searchValue, page: pagination.page });
+    } catch (err) {
+      setError(err.response?.data?.message || 'Không thể nhập file Excel');
+    } finally {
+      setImporting(false);
+    }
+  };
+
   return {
     customers,
     loading,
@@ -78,11 +130,16 @@ export function useCustomerList() {
     deleteTarget,
     deletingId,
     exporting,
-    showRawDb,
+    importing,
+    importSummary,
+    pagination,
     setDeleteTarget,
+    setImportSummary,
     handleSearch,
+    goToPreviousPage,
+    goToNextPage,
     handleDelete,
     handleExportExcel,
-    handleRawModeChange
+    handleImportExcel
   };
 }

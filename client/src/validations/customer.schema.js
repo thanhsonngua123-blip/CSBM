@@ -1,18 +1,35 @@
-﻿import { z } from 'zod';
+import { z } from 'zod';
 
-function hasMaskCharacter(value) {
-  return typeof value === 'string' && value.includes('*');
+function normalizeText(value) {
+  return typeof value === 'string' ? value.trim() : '';
 }
 
-function shouldSkipSensitiveValidation(value, allowMaskedSensitiveValues) {
-  return allowMaskedSensitiveValues && hasMaskCharacter(value.trim());
+function isUnchangedProtectedValue(fieldName, value, options) {
+  const { allowMaskedSensitiveValues, initialSensitiveValues } = options;
+
+  if (!allowMaskedSensitiveValues) {
+    return false;
+  }
+
+  return normalizeText(value) !== '' && normalizeText(value) === normalizeText(initialSensitiveValues[fieldName]);
+}
+
+function isValidEmail(value) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+}
+
+function isValidPhone(value) {
+  return /^0\d{9}$/.test(value);
 }
 
 function isValidCitizenId(value) {
   return /^0\d{11}$/.test(value);
 }
 
-export function createCustomerSchema(allowMaskedSensitiveValues) {
+export function createCustomerSchema(options = {}) {
+  const allowMaskedSensitiveValues = options.allowMaskedSensitiveValues === true;
+  const initialSensitiveValues = options.initialSensitiveValues || {};
+
   return z
     .object({
       full_name: z
@@ -23,8 +40,7 @@ export function createCustomerSchema(allowMaskedSensitiveValues) {
       email: z
         .string()
         .trim()
-        .min(1, 'Email không được để trống')
-        .email('Email không hợp lệ'),
+        .min(1, 'Email không được để trống'),
       phone: z
         .string()
         .trim()
@@ -39,23 +55,28 @@ export function createCustomerSchema(allowMaskedSensitiveValues) {
         .min(1, 'Địa chỉ không được để trống')
     })
     .superRefine((data, ctx) => {
-      const phone = data.phone.trim();
-      if (
-        !shouldSkipSensitiveValidation(phone, allowMaskedSensitiveValues) &&
-        !/^[0-9+\s.-]{8,20}$/.test(phone)
-      ) {
+      const sharedOptions = { allowMaskedSensitiveValues, initialSensitiveValues };
+      const email = normalizeText(data.email);
+
+      if (!isUnchangedProtectedValue('email', email, sharedOptions) && !isValidEmail(email)) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          path: ['phone'],
-          message: 'Số điện thoại không hợp lệ'
+          path: ['email'],
+          message: 'Email không hợp lệ'
         });
       }
 
-      const idNumber = data.id_number.trim();
-      if (
-        !shouldSkipSensitiveValidation(idNumber, allowMaskedSensitiveValues) &&
-        !isValidCitizenId(idNumber)
-      ) {
+      const phone = normalizeText(data.phone);
+      if (!isUnchangedProtectedValue('phone', phone, sharedOptions) && !isValidPhone(phone)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['phone'],
+          message: 'Số điện thoại phải gồm 10 số và bắt đầu bằng số 0'
+        });
+      }
+
+      const idNumber = normalizeText(data.id_number);
+      if (!isUnchangedProtectedValue('id_number', idNumber, sharedOptions) && !isValidCitizenId(idNumber)) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: ['id_number'],
@@ -63,11 +84,8 @@ export function createCustomerSchema(allowMaskedSensitiveValues) {
         });
       }
 
-      const address = data.address.trim();
-      if (
-        !shouldSkipSensitiveValidation(address, allowMaskedSensitiveValues) &&
-        address.length < 5
-      ) {
+      const address = normalizeText(data.address);
+      if (!isUnchangedProtectedValue('address', address, sharedOptions) && address.length < 5) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: ['address'],

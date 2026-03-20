@@ -11,9 +11,7 @@ function SecuritySandboxPage() {
           Security Sandbox
         </p>
         <h1 className="mt-3 text-2xl font-semibold text-slate-900">Công cụ Test</h1>
-        <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
-          Trang này không đọc hoặc ghi Database. Nó chỉ gọi trực tiếp utility mã hóa để bạn kiểm tra đúng luồng AES đang dùng trong hệ thống.
-        </p>
+       
 
         <div className="mt-5">
           <label htmlFor="security-sandbox-input" className="mb-2 block text-sm font-medium text-slate-700">
@@ -24,7 +22,7 @@ function SecuritySandboxPage() {
             type="text"
             value={inputValue}
             onChange={(event) => setInputValue(event.target.value)}
-            placeholder="Ví dụ: 012345678901"
+            placeholder="Nhập dữ liệu cần mã hóa"
             className="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm text-slate-900 outline-none focus:border-slate-500"
           />
         </div>
