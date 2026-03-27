@@ -26,8 +26,27 @@ function isModernCiphertext(value) {
   return typeof value === 'string' && value.length > 4 && value[0] === 'v' && value[1] === '2' && value[2] === '$';
 }
 
+function splitModernParts(ciphertext) {
+  var parts = [];
+  var current = '';
+  var index = 0;
+
+  for (var i = 0; i < ciphertext.length; i++) {
+    if (ciphertext[i] === '$') {
+      parts[index] = current;
+      current = '';
+      index++;
+    } else {
+      current = current + ciphertext[i];
+    }
+  }
+
+  parts[index] = current;
+  return parts;
+}
+
 function parseModernCiphertext(ciphertext) {
-  var parts = ciphertext.split('$');
+  var parts = splitModernParts(ciphertext);
 
   if (parts.length !== 4 || parts[0] !== 'v2') {
     throw new Error('Ciphertext khong hop le');
@@ -78,7 +97,6 @@ function decryptModern(ciphertext, key) {
 }
 
 module.exports = {
-  MODERN_PREFIX,
   isModernCiphertext,
   parseModernCiphertext,
   encryptModern,

@@ -10,7 +10,7 @@ function addPkcs7Padding(bytes) {
     paddingLength = BLOCK_SIZE;
   }
 
-  for (var i = 0; i < paddingLength; i = i + 1) {
+  for (var i = 0; i < paddingLength; i++) {
     result[result.length] = paddingLength;
   }
 
@@ -28,7 +28,7 @@ function removePkcs7Padding(bytes) {
     throw new Error('Padding khong hop le');
   }
 
-  for (var i = bytes.length - paddingLength; i < bytes.length; i = i + 1) {
+  for (var i = bytes.length - paddingLength; i < bytes.length; i++) {
     if (bytes[i] !== paddingLength) {
       throw new Error('Padding khong hop le');
     }

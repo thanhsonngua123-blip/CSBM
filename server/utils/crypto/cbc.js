@@ -4,7 +4,7 @@ var splitBlocks = require('./bytes').splitBlocks;
 function xorBlock(left, right) {
   var result = [];
 
-  for (var i = 0; i < aesCore.BLOCK_SIZE; i = i + 1) {
+  for (var i = 0; i < aesCore.BLOCK_SIZE; i++) {
     result[i] = left[i] ^ right[i];
   }
 
@@ -15,10 +15,10 @@ function joinBlocks(blocks) {
   var result = [];
   var index = 0;
 
-  for (var i = 0; i < blocks.length; i = i + 1) {
-    for (var j = 0; j < blocks[i].length; j = j + 1) {
+  for (var i = 0; i < blocks.length; i++) {
+    for (var j = 0; j < blocks[i].length; j++) {
       result[index] = blocks[i][j];
-      index = index + 1;
+      index++;
     }
   }
 
@@ -30,7 +30,7 @@ function encryptCbc(plainBytes, expandedKey, ivBytes) {
   var encryptedBlocks = [];
   var previousBlock = ivBytes;
 
-  for (var i = 0; i < blocks.length; i = i + 1) {
+  for (var i = 0; i < blocks.length; i++) {
     var xored = xorBlock(blocks[i], previousBlock);
     var encrypted = aesCore.encryptBlock(xored, expandedKey);
     encryptedBlocks[i] = encrypted;
@@ -45,7 +45,7 @@ function decryptCbc(cipherBytes, expandedKey, ivBytes) {
   var plainBlocks = [];
   var previousBlock = ivBytes;
 
-  for (var i = 0; i < blocks.length; i = i + 1) {
+  for (var i = 0; i < blocks.length; i++) {
     var decrypted = aesCore.decryptBlock(blocks[i], expandedKey);
     plainBlocks[i] = xorBlock(decrypted, previousBlock);
     previousBlock = blocks[i];
@@ -55,7 +55,6 @@ function decryptCbc(cipherBytes, expandedKey, ivBytes) {
 }
 
 module.exports = {
-  xorBlock,
   encryptCbc,
   decryptCbc
 };

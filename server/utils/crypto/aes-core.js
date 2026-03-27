@@ -42,7 +42,7 @@ var BLOCK_SIZE = 16;
 function gmul(a, b) {
   var result = 0;
 
-  for (var i = 0; i < 8; i = i + 1) {
+  for (var i = 0; i < 8; i++) {
     if ((b & 1) !== 0) {
       result = result ^ a;
     }
@@ -61,19 +61,19 @@ function gmul(a, b) {
 }
 
 function addRoundKey(state, expandedKey, offset) {
-  for (var i = 0; i < BLOCK_SIZE; i = i + 1) {
+  for (var i = 0; i < BLOCK_SIZE; i++) {
     state[i] = state[i] ^ expandedKey[offset + i];
   }
 }
 
 function subBytes(state) {
-  for (var i = 0; i < BLOCK_SIZE; i = i + 1) {
+  for (var i = 0; i < BLOCK_SIZE; i++) {
     state[i] = SBOX[state[i]];
   }
 }
 
 function invSubBytes(state) {
-  for (var i = 0; i < BLOCK_SIZE; i = i + 1) {
+  for (var i = 0; i < BLOCK_SIZE; i++) {
     state[i] = INV_SBOX[state[i]];
   }
 }
@@ -121,7 +121,7 @@ function invShiftRows(state) {
 }
 
 function mixColumns(state) {
-  for (var column = 0; column < 4; column = column + 1) {
+  for (var column = 0; column < 4; column++) {
     var offset = column * 4;
     var s0 = state[offset];
     var s1 = state[offset + 1];
@@ -136,7 +136,7 @@ function mixColumns(state) {
 }
 
 function invMixColumns(state) {
-  for (var column = 0; column < 4; column = column + 1) {
+  for (var column = 0; column < 4; column++) {
     var offset = column * 4;
     var s0 = state[offset];
     var s1 = state[offset + 1];
@@ -153,7 +153,7 @@ function invMixColumns(state) {
 function expandKey(keyBytes) {
   var expanded = [];
 
-  for (var i = 0; i < BLOCK_SIZE; i = i + 1) {
+  for (var i = 0; i < BLOCK_SIZE; i++) {
     expanded[i] = keyBytes[i];
   }
 
@@ -162,7 +162,7 @@ function expandKey(keyBytes) {
   var temp = [0, 0, 0, 0];
 
   while (generated < 176) {
-    for (i = 0; i < 4; i = i + 1) {
+    for (i = 0; i < 4; i++) {
       temp[i] = expanded[generated - 4 + i];
     }
 
@@ -173,17 +173,17 @@ function expandKey(keyBytes) {
       temp[2] = temp[3];
       temp[3] = rotated;
 
-      for (i = 0; i < 4; i = i + 1) {
+      for (i = 0; i < 4; i++) {
         temp[i] = SBOX[temp[i]];
       }
 
       temp[0] = temp[0] ^ RCON[rconIndex];
-      rconIndex = rconIndex + 1;
+      rconIndex++;
     }
 
-    for (i = 0; i < 4; i = i + 1) {
+    for (i = 0; i < 4; i++) {
       expanded[generated] = expanded[generated - BLOCK_SIZE] ^ temp[i];
-      generated = generated + 1;
+      generated++;
     }
   }
 
@@ -193,13 +193,13 @@ function expandKey(keyBytes) {
 function encryptBlock(block, expandedKey) {
   var state = [];
 
-  for (var i = 0; i < BLOCK_SIZE; i = i + 1) {
+  for (var i = 0; i < BLOCK_SIZE; i++) {
     state[i] = block[i];
   }
 
   addRoundKey(state, expandedKey, 0);
 
-  for (var round = 1; round <= 9; round = round + 1) {
+  for (var round = 1; round <= 9; round++) {
     subBytes(state);
     shiftRows(state);
     mixColumns(state);
@@ -215,13 +215,13 @@ function encryptBlock(block, expandedKey) {
 function decryptBlock(block, expandedKey) {
   var state = [];
 
-  for (var i = 0; i < BLOCK_SIZE; i = i + 1) {
+  for (var i = 0; i < BLOCK_SIZE; i++) {
     state[i] = block[i];
   }
 
   addRoundKey(state, expandedKey, 160);
 
-  for (var round = 9; round >= 1; round = round - 1) {
+  for (var round = 9; round >= 1; round--) {
     invShiftRows(state);
     invSubBytes(state);
     addRoundKey(state, expandedKey, round * BLOCK_SIZE);

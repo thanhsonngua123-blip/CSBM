@@ -5,7 +5,7 @@ function copyBytes(data) {
 
   var result = [];
 
-  for (var i = 0; i < data.length; i = i + 1) {
+  for (var i = 0; i < data.length; i++) {
     result[i] = data[i];
   }
 
@@ -16,14 +16,14 @@ function concatBytes(a, b) {
   var result = [];
   var index = 0;
 
-  for (var i = 0; i < a.length; i = i + 1) {
+  for (var i = 0; i < a.length; i++) {
     result[index] = a[i];
-    index = index + 1;
+    index++;
   }
 
-  for (var j = 0; j < b.length; j = j + 1) {
+  for (var j = 0; j < b.length; j++) {
     result[index] = b[j];
-    index = index + 1;
+    index++;
   }
 
   return result;
@@ -34,9 +34,9 @@ function sliceBytes(data, start, end) {
   var index = 0;
   var limit = end === undefined ? data.length : end;
 
-  for (var i = start; i < limit && i < data.length; i = i + 1) {
+  for (var i = start; i < limit && i < data.length; i++) {
     result[index] = data[i];
-    index = index + 1;
+    index++;
   }
 
   return result;
@@ -48,7 +48,7 @@ function splitBlocks(bytes, blockSize) {
 
   for (var i = 0; i < bytes.length; i = i + blockSize) {
     blocks[index] = sliceBytes(bytes, i, i + blockSize);
-    index = index + 1;
+    index++;
   }
 
   if (blocks.length === 0) {
@@ -73,15 +73,15 @@ function stringToBytes(value) {
         codePoint = (((codeUnit - 0xd800) << 10) | (nextCodeUnit - 0xdc00)) + 0x10000;
         i = i + 2;
       } else {
-        i = i + 1;
+        i++;
       }
     } else {
-      i = i + 1;
+      i++;
     }
 
     if (codePoint <= 0x7f) {
       bytes[index] = codePoint;
-      index = index + 1;
+      index++;
     } else if (codePoint <= 0x7ff) {
       bytes[index] = 0xc0 | (codePoint >>> 6);
       bytes[index + 1] = 0x80 | (codePoint & 0x3f);
@@ -112,7 +112,7 @@ function bytesToString(bytes) {
 
     if (b0 < 0x80) {
       result = result + String.fromCharCode(b0);
-      i = i + 1;
+      i++;
       continue;
     }
 
@@ -146,24 +146,10 @@ function bytesToString(bytes) {
     }
 
     result = result + '?';
-    i = i + 1;
+    i++;
   }
 
   return result;
-}
-
-function bytesToLegacyString(bytes) {
-  var filtered = [];
-  var index = 0;
-
-  for (var i = 0; i < bytes.length; i = i + 1) {
-    if (bytes[i] !== 0) {
-      filtered[index] = bytes[i];
-      index = index + 1;
-    }
-  }
-
-  return bytesToString(filtered);
 }
 
 function byteToHex(value) {
@@ -176,7 +162,7 @@ function byteToHex(value) {
 function bytesToHex(bytes) {
   var result = '';
 
-  for (var i = 0; i < bytes.length; i = i + 1) {
+  for (var i = 0; i < bytes.length; i++) {
     result = result + byteToHex(bytes[i]);
   }
 
@@ -187,7 +173,7 @@ function hexCharToNumber(value) {
   var lowerHex = '0123456789abcdef';
   var upperHex = '0123456789ABCDEF';
 
-  for (var i = 0; i < 16; i = i + 1) {
+  for (var i = 0; i < 16; i++) {
     if (lowerHex[i] === value || upperHex[i] === value) {
       return i;
     }
@@ -204,29 +190,10 @@ function hexToBytes(hexValue) {
     var high = hexCharToNumber(hexValue[i]);
     var low = hexCharToNumber(hexValue[i + 1]);
     result[index] = high * 16 + low;
-    index = index + 1;
+    index++;
   }
 
   return result;
-}
-
-function isHexString(value) {
-  if (typeof value !== 'string' || value.length === 0) {
-    return false;
-  }
-
-  for (var i = 0; i < value.length; i = i + 1) {
-    var ch = value[i];
-    var isDigit = ch >= '0' && ch <= '9';
-    var isLower = ch >= 'a' && ch <= 'f';
-    var isUpper = ch >= 'A' && ch <= 'F';
-
-    if (!isDigit && !isLower && !isUpper) {
-      return false;
-    }
-  }
-
-  return true;
 }
 
 module.exports = {
@@ -236,8 +203,6 @@ module.exports = {
   splitBlocks,
   stringToBytes,
   bytesToString,
-  bytesToLegacyString,
   bytesToHex,
-  hexToBytes,
-  isHexString
+  hexToBytes
 };

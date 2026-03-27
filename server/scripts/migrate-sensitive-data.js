@@ -1,6 +1,6 @@
 require('dotenv').config();
 const pool = require('../config/db');
-const { encryptAES, decryptAES, isModernCiphertext, isLegacyCiphertext } = require('../utils/encryption');
+const { encryptAES, isModernCiphertext } = require('../utils/encryption');
 
 const AES_KEY = process.env.AES_SECRET_KEY;
 
@@ -27,10 +27,6 @@ function reencryptValue(value) {
 
   if (isModernCiphertext(normalized)) {
     return normalized;
-  }
-
-  if (isLegacyCiphertext(normalized)) {
-    return encryptAES(decryptAES(normalized, AES_KEY), AES_KEY);
   }
 
   return encryptAES(normalized, AES_KEY);

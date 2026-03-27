@@ -68,12 +68,6 @@ function CustomerDetailPage() {
           onBack={() => navigate('/')}
         />
 
-        {error ? (
-          <div className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-            {error}
-          </div>
-        ) : null}
-
         {customer.has_integrity_issue ? (
           <div className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
             Phát hiện dữ liệu khách hàng có dấu hiệu bị sửa trực tiếp trong CSDL ở các trường:{' '}
