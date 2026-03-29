@@ -37,29 +37,24 @@ function ensureState() {
 
 function nextBlock() {
   ensureState();
-
   var counterBytes = numberToBytes(generatorCounter);
   var mixed = bytes.concatBytes(bytes.concatBytes(generatorState, counterBytes), seedMaterialBytes());
   var output = hash.sha256Bytes(mixed);
   generatorState = hash.sha256Bytes(bytes.concatBytes(bytes.concatBytes(output, generatorState), counterBytes));
   generatorCounter = (generatorCounter + 1) >>> 0;
-
   return output;
 }
 
 function randomBytesArray(size) {
   var result = [];
   var index = 0;
-
   while (index < size) {
     var block = nextBlock();
-
     for (var i = 0; i < block.length && index < size; i++) {
       result[index] = block[i];
       index++;
     }
   }
-
   return result;
 }
 

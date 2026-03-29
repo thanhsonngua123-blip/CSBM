@@ -7,6 +7,7 @@ import AuditLogsPage from './pages/AuditLogsPage';
 import CustomerListPage from './pages/CustomerListPage';
 import CustomerFormPage from './pages/CustomerFormPage';
 import CustomerDetailPage from './pages/CustomerDetailPage';
+import ForbiddenPage from './pages/ForbiddenPage';
 import SecuritySandboxPage from './pages/SecuritySandboxPage';
 
 function App() {
@@ -28,6 +29,7 @@ function App() {
             <Route path="/customers/new" element={<CustomerFormPage />} />
             <Route path="/customers/:id" element={<CustomerDetailPage />} />
             <Route path="/customers/:id/edit" element={<CustomerFormPage />} />
+            <Route path="/forbidden" element={<ForbiddenPage />} />
             <Route
               path="/security-tools"
               element={

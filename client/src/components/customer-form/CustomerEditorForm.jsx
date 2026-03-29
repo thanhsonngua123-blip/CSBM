@@ -15,11 +15,7 @@ function CustomerEditorForm({
 
   return (
     <form onSubmit={onSubmit} noValidate className="rounded-xl border border-slate-200 bg-white p-6">
-      {showMaskedSensitiveHint ? (
-        <div className="mb-4 rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-          Với các trường đang hiển thị dấu <code>*</code>, nếu giữ nguyên rồi bấm lưu thì hệ thống sẽ giữ nguyên dữ liệu cũ. Chỉ khi bạn xóa và nhập giá trị mới thì dữ liệu mới mới được lưu.
-        </div>
-      ) : null}
+      
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <label className="md:col-span-2">

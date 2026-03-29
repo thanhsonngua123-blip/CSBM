@@ -19,18 +19,18 @@ function addPkcs7Padding(bytes) {
 
 function removePkcs7Padding(bytes) {
   if (bytes.length === 0 || bytes.length % BLOCK_SIZE !== 0) {
-    throw new Error('Padding khong hop le');
+    throw new Error('Padding không hợp lệ');
   }
 
   var paddingLength = bytes[bytes.length - 1];
 
   if (paddingLength < 1 || paddingLength > BLOCK_SIZE || paddingLength > bytes.length) {
-    throw new Error('Padding khong hop le');
+    throw new Error('Padding không hợp lệ');
   }
 
   for (var i = bytes.length - paddingLength; i < bytes.length; i++) {
     if (bytes[i] !== paddingLength) {
-      throw new Error('Padding khong hop le');
+      throw new Error('Padding không hợp lệ');
     }
   }
 

@@ -1,16 +1,13 @@
 const pool = require('../config/db');
 const { encryptAES, decryptAES } = require('../utils/encryption');
 const { maskPhone, maskIdNumber, maskEmail, maskAddress } = require('../utils/masking');
+const {
+  PROTECTED_CUSTOMER_FIELDS,
+  PROTECTED_FIELD_LABELS,
+  INTEGRITY_PLACEHOLDER
+} = require('../constants/customer.constants');
 
 const AES_KEY = process.env.AES_SECRET_KEY;
-const PROTECTED_CUSTOMER_FIELDS = ['email', 'phone', 'id_number', 'address'];
-const PROTECTED_FIELD_LABELS = {
-  email: 'Email',
-  phone: 'So dien thoai',
-  id_number: 'CCCD / CMND',
-  address: 'Dia chi'
-};
-const INTEGRITY_PLACEHOLDER = 'DU LIEU BI SUA';
 
 function normalizeText(value) {
   if (value === undefined || value === null) {
@@ -68,7 +65,7 @@ function decryptValue(value) {
   try {
     return decryptAES(normalized, AES_KEY);
   } catch (error) {
-    throw new Error('Du lieu nhay cam trong CSDL da bi sua hoac khong hop le');
+    throw new Error('Dữ liệu nhạy cảm trong CSDL đã bị sửa hoặc không hợp lệ');
   }
 }
 
@@ -116,7 +113,7 @@ function buildIntegrityIssue(fieldName) {
   return {
     field: fieldName,
     label: PROTECTED_FIELD_LABELS[fieldName] || fieldName,
-    message: `${PROTECTED_FIELD_LABELS[fieldName] || fieldName} da bi thay doi trong CSDL`
+    message: `${PROTECTED_FIELD_LABELS[fieldName] || fieldName} đã bị thay đổi trong CSDL`
   };
 }
 
@@ -141,7 +138,7 @@ function inspectStoredSensitiveValue(fieldName, storedValue, role) {
     const decryptedValue = decryptAES(normalizedStored, AES_KEY);
 
     if (!isValidDecryptedValue(fieldName, decryptedValue)) {
-      throw new Error('Gia tri sau giai ma khong hop le');
+      throw new Error('Giá trị sau giải mã không hợp lệ');
     }
 
     return {
@@ -219,11 +216,11 @@ async function ensureUniqueCustomerFields({ email, idNumber, excludeId }) {
     const rowIdNumber = row.id_number ? normalizeText(decryptValue(row.id_number)) : '';
 
     if (normalizedEmail && rowEmail === normalizedEmail) {
-      throw new Error('Email da ton tai');
+      throw new Error('Email đã tồn tại');
     }
 
     if (normalizedIdNumber && rowIdNumber === normalizedIdNumber) {
-      throw new Error('CCCD/CMND da ton tai');
+      throw new Error('CCCD/CMND đã tồn tại');
     }
   }
 }
@@ -244,6 +241,7 @@ function formatCustomerRow(row, role) {
 
   return {
     id: row.id,
+    display_order: row.display_order || null,
     full_name: row.full_name,
     email: emailResult.value,
     phone: phoneResult.value,
@@ -257,6 +255,17 @@ function formatCustomerRow(row, role) {
     has_integrity_issue: integrityIssues.length > 0,
     integrity_issues: integrityIssues
   };
+}
+
+async function getCustomerDisplayOrder(createdAt, customerId) {
+  const [rows] = await pool.query(
+    `SELECT COUNT(*) AS display_order
+    FROM customers
+    WHERE created_at < ? OR (created_at = ? AND id <= ?)`,
+    [createdAt, createdAt, customerId]
+  );
+
+  return rows[0]?.display_order || 1;
 }
 
 async function getAll(search, role, options = {}) {
@@ -329,10 +338,13 @@ async function getById(id, role) {
   );
 
   if (rows.length === 0) {
-    throw new Error('Khong tim thay khach hang');
+    throw new Error('Không tìm thấy khách hàng');
   }
 
-  return formatCustomerRow(rows[0], role);
+  const customerRow = rows[0];
+  customerRow.display_order = await getCustomerDisplayOrder(customerRow.created_at, customerRow.id);
+
+  return formatCustomerRow(customerRow, role);
 }
 
 async function create(data, userId) {
@@ -363,7 +375,7 @@ async function update(id, data) {
   const [rows] = await pool.query('SELECT * FROM customers WHERE id = ?', [id]);
 
   if (rows.length === 0) {
-    throw new Error('Khong tim thay khach hang');
+    throw new Error('Không tìm thấy khách hàng');
   }
 
   const existing = rows[0];
@@ -395,7 +407,7 @@ async function remove(id) {
   const [result] = await pool.query('DELETE FROM customers WHERE id = ?', [id]);
 
   if (result.affectedRows === 0) {
-    throw new Error('Khong tim thay khach hang');
+    throw new Error('Không tìm thấy khách hàng');
   }
 
   return { id: Number(id) };

@@ -21,7 +21,7 @@ function createEmptyPreview() {
   };
 }
 
-async function preview(req, res) {
+async function preview(req, res, next) {
   try {
     const input = normalizeInput(req.body.input);
 
@@ -50,7 +50,7 @@ async function preview(req, res) {
       }
     });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    next(err);
   }
 }
 

@@ -2,10 +2,13 @@
 import CustomerEditorForm from '../components/customer-form/CustomerEditorForm';
 import { useAuth } from '../hooks/useAuth';
 import { useCustomerForm } from '../hooks/useCustomerForm';
+import { showFlashToast } from '../utils/flash-toast';
 
 function CustomerFormPage() {
   const navigate = useNavigate();
   const { id } = useParams();
+  const pageIsEditMode = Boolean(id);
+
   const { user } = useAuth();
   const {
     form,
@@ -18,7 +21,10 @@ function CustomerFormPage() {
   } = useCustomerForm({
     customerId: id,
     userRole: user?.role,
-    onSuccess: () => navigate('/')
+    onSuccess: () => {
+      showFlashToast(pageIsEditMode ? 'Cập nhật khách hàng thành công' : 'Thêm khách hàng thành công');
+      navigate('/');
+    }
   });
 
   if (fetching) {
@@ -63,4 +69,3 @@ function CustomerFormPage() {
 }
 
 export default CustomerFormPage;
-

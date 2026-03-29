@@ -24,8 +24,9 @@ function DataCell({ value, issue }) {
   return <span className="text-slate-700">{value || '-'}</span>;
 }
 
-function CustomerTable({ customers, loading, deletingId, onDelete }) {
+function CustomerTable({ customers, loading, deletingId, onDelete, pagination }) {
   const navigate = useNavigate();
+  const rowOffset = Math.max((pagination?.page || 1) - 1, 0) * (pagination?.limit || 10);
 
   if (loading) {
     return (
@@ -72,7 +73,7 @@ function CustomerTable({ customers, loading, deletingId, onDelete }) {
                     customer.has_integrity_issue ? 'bg-red-50 hover:bg-red-50' : 'hover:bg-slate-50'
                   }
                 >
-                  <td className="px-4 py-3 text-slate-500">{index + 1}</td>
+                  <td className="px-4 py-3 text-slate-500">{rowOffset + index + 1}</td>
                   <td className="px-4 py-3">
                     <p className="font-medium text-slate-900">{customer.full_name}</p>
                     {customer.has_integrity_issue ? (

@@ -90,4 +90,61 @@ async function clearAll() {
   return { deleted_count: result.affectedRows };
 }
 
-module.exports = { createLog, createLogIfMissing, getAll, clearAll };
+function formatAuditTimestamp(value) {
+  if (!value) return 'không rõ';
+  return new Date(value).toISOString();
+}
+
+function buildIntegrityAlertDescription(customer) {
+  const labels = Array.isArray(customer.integrity_issues)
+    ? customer.integrity_issues.map(function (issue) { return issue.label; }).join(', ')
+    : '';
+
+  return `Phát hiện dữ liệu khách hàng "${customer.full_name}" có dấu hiệu bị sửa trực tiếp trong CSDL ở các trường: ${labels}. Mốc updated_at: ${formatAuditTimestamp(customer.updated_at)}`;
+}
+
+function buildImportErrorDescription(user, details) {
+  const segments = [];
+
+  if (details.reason) segments.push(details.reason);
+  if (typeof details.failedCount === 'number') segments.push(`số dòng lỗi: ${details.failedCount}`);
+  if (typeof details.totalRows === 'number') segments.push(`tổng dòng xử lý: ${details.totalRows}`);
+  if (typeof details.importedCount === 'number') segments.push(`thành công: ${details.importedCount}`);
+
+  if (Array.isArray(details.errors) && details.errors.length > 0) {
+    const previewErrors = details.errors.slice(0, 3).map(function (e) {
+      return `dòng ${e.row}: ${e.message}`;
+    });
+    segments.push(`chi tiết: ${previewErrors.join(' | ')}`);
+  }
+
+  return `${user.username} gặp lỗi khi nhập Excel khách hàng. ${segments.join('. ')}`;
+}
+
+async function recordImportError(user, details) {
+  await createLog({
+    userId: user.id,
+    action: 'IMPORT_CUSTOMERS_ERROR',
+    entityType: 'customer',
+    entityId: null,
+    description: buildImportErrorDescription(user, details)
+  });
+}
+
+async function recordIntegrityAlerts(user, customers) {
+  for (let i = 0; i < customers.length; i = i + 1) {
+    const customer = customers[i];
+
+    if (!customer || !customer.has_integrity_issue) continue;
+
+    await createLogIfMissing({
+      userId: user.id,
+      action: 'DETECT_TAMPERED_CUSTOMER_DATA',
+      entityType: 'customer',
+      entityId: customer.id,
+      description: buildIntegrityAlertDescription(customer)
+    });
+  }
+}
+
+module.exports = { createLog, createLogIfMissing, getAll, clearAll, recordImportError, recordIntegrityAlerts };

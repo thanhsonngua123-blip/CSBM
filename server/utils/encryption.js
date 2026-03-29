@@ -17,7 +17,7 @@ function decryptAES(ciphertext, key) {
     return modern.decryptModern(ciphertext, key);
   }
 
-  throw new Error('Ciphertext khong hop le');
+  throw new Error('Ciphertext không hợp lệ');
 }
 
 module.exports = {

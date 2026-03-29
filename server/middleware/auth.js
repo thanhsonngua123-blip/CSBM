@@ -34,27 +34,21 @@ function parseCookies(cookieHeader) {
 
 function getTokenFromRequest(req) {
   const cookies = parseCookies(req.headers.cookie);
-
   if (cookies[AUTH_COOKIE_NAME]) {
     return cookies[AUTH_COOKIE_NAME];
   }
-
   const authHeader = req.headers.authorization;
-
   if (authHeader && authHeader.startsWith('Bearer ')) {
     return authHeader.slice(7);
   }
-
   return '';
 }
 
 function authenticate(req, res, next) {
   const token = getTokenFromRequest(req);
-
   if (!token) {
     return res.status(401).json({ message: 'Chưa đăng nhập' });
   }
-
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.user = decoded;

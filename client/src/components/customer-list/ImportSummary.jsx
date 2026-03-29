@@ -5,6 +5,7 @@ function ImportSummary({ summary, onClose }) {
 
   const hasFailures = summary.failed_count > 0;
   const previewErrors = hasFailures ? summary.errors.slice(0, 10) : [];
+  const showSuccessSummary = !hasFailures && summary.imported_count > 0;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/45 px-4 backdrop-blur-sm">
@@ -49,11 +50,11 @@ function ImportSummary({ summary, onClose }) {
               ) : null}
             </ul>
           </div>
-        ) : (
+        ) : showSuccessSummary ? (
           <div className="mt-5 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900">
             Tất cả dòng hợp lệ đã được nhập và mã hóa thành công.
           </div>
-        )}
+        ) : null}
       </div>
     </div>
   );

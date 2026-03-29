@@ -49,7 +49,7 @@ function parseModernCiphertext(ciphertext) {
   var parts = splitModernParts(ciphertext);
 
   if (parts.length !== 4 || parts[0] !== 'v2') {
-    throw new Error('Ciphertext khong hop le');
+    throw new Error('Ciphertext không hợp lệ');
   }
 
   return {
@@ -82,13 +82,13 @@ function decryptModern(ciphertext, key) {
     cipherBytes.length === 0 ||
     cipherBytes.length % aesCore.BLOCK_SIZE !== 0
   ) {
-    throw new Error('Ciphertext khong hop le');
+    throw new Error('Ciphertext không hợp lệ');
   }
 
   var expectedMac = hash.hmacSha256(deriveMacKey(key), buildMacData(ivBytes, cipherBytes));
 
   if (!hash.constantTimeEqual(macBytes, expectedMac)) {
-    throw new Error('Du lieu da bi thay doi hoac khong hop le');
+    throw new Error('Dữ liệu đã bị thay đổi hoặc không hợp lệ');
   }
 
   var expandedKey = aesCore.expandKey(deriveEncryptionKey(key));

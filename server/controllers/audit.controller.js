@@ -1,6 +1,6 @@
 const auditService = require('../services/audit.service');
 
-async function getAll(req, res) {
+async function getAll(req, res, next) {
   try {
     const result = await auditService.getAll({
       page: req.query.page,
@@ -11,16 +11,16 @@ async function getAll(req, res) {
     });
     res.json(result);
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    next(err);
   }
 }
 
-async function clearAll(req, res) {
+async function clearAll(req, res, next) {
   try {
     const result = await auditService.clearAll();
     res.json({ message: 'Đã xóa toàn bộ nhật ký hệ thống', ...result });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    next(err);
   }
 }
 

@@ -3,7 +3,9 @@
     <div className="flex flex-col gap-3 rounded-xl border border-slate-200 bg-white p-5 sm:flex-row sm:items-start sm:justify-between">
       <div>
         <h2 className="text-2xl font-semibold text-slate-900">{customer.full_name}</h2>
-        <p className="mt-1 text-sm text-slate-500">Mã khách hàng #{customer.id}</p>
+        <p className="mt-1 text-sm text-slate-500">
+          Mã khách hàng #{customer.display_order || customer.id}
+        </p>
       </div>
       <div className="flex flex-wrap gap-2">
         <button

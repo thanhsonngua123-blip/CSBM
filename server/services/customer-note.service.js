@@ -40,7 +40,7 @@ function decryptNoteContent(value) {
   try {
     return decryptAES(normalized, AES_KEY);
   } catch (error) {
-    throw new Error('Du lieu ghi chu da bi sua hoac khong hop le');
+    throw new Error('Dữ liệu ghi chú đã bị sửa hoặc không hợp lệ');
   }
 }
 
@@ -51,7 +51,7 @@ async function getCustomerById(customerId) {
   );
 
   if (rows.length === 0) {
-    throw new Error('Khong tim thay khach hang');
+    throw new Error('Không tìm thấy khách hàng');
   }
 
   return rows[0];
@@ -102,7 +102,7 @@ async function create({ customerId, userId, content, role }) {
   const normalizedContent = normalizeContent(content);
 
   if (!normalizedContent) {
-    throw new Error('Noi dung ghi chu khong duoc de trong');
+    throw new Error('Nội dung ghi chú không được để trống');
   }
 
   const [result] = await pool.query(

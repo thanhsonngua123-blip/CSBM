@@ -1,16 +1,20 @@
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ConfirmDialog from '../components/ConfirmDialog';
 import CustomerTable from '../components/CustomerTable';
 import SearchBar from '../components/SearchBar';
+import Toast from '../components/Toast';
 import CustomerListHeader from '../components/customer-list/CustomerListHeader';
 import CustomerPagination from '../components/customer-list/CustomerPagination';
 import ImportSummary from '../components/customer-list/ImportSummary';
 import { useAuth } from '../hooks/useAuth';
 import { useCustomerList } from '../hooks/useCustomerList';
+import { clearFlashToast, getFlashToast } from '../utils/flash-toast';
 
 function CustomerListPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [flashToast, setFlashToast] = useState(() => getFlashToast());
   const {
     customers,
     loading,
@@ -33,8 +37,23 @@ function CustomerListPage() {
 
   const isAdmin = user?.role === 'admin';
 
+  useEffect(() => {
+    if (!flashToast) {
+      return undefined;
+    }
+
+    const timeoutId = setTimeout(() => {
+      setFlashToast(null);
+      clearFlashToast();
+    }, Math.max(0, flashToast.expiresAt - Date.now()));
+
+    return () => clearTimeout(timeoutId);
+  }, [flashToast]);
+
   return (
     <>
+      <Toast message={flashToast?.message} />
+
       <div className="space-y-4">
         <CustomerListHeader
           customerCount={pagination.total}
@@ -63,6 +82,7 @@ function CustomerListPage() {
           loading={loading}
           deletingId={deletingId}
           onDelete={setDeleteTarget}
+          pagination={pagination}
         />
 
         <CustomerPagination

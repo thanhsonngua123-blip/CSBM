@@ -1,4 +1,5 @@
 const authService = require('../services/auth.service');
+const HttpError = require('../utils/http-error');
 
 const AUTH_COOKIE_NAME = process.env.AUTH_COOKIE_NAME || 'auth_token';
 const AUTH_COOKIE_MAX_AGE_MS = 8 * 60 * 60 * 1000;
@@ -22,19 +23,20 @@ function buildClearCookieOptions() {
   };
 }
 
-async function login(req, res) {
+async function login(req, res, next) {
   try {
     const { username, password } = req.body;
 
     if (!username || !password) {
-      return res.status(400).json({ message: 'Vui lòng nhập đầy đủ thông tin' });
+      throw new HttpError(400, 'Vui lòng nhập đầy đủ thông tin');
     }
 
     const result = await authService.login(username, password);
     res.cookie(AUTH_COOKIE_NAME, result.token, buildAuthCookieOptions());
     res.json({ user: result.user });
   } catch (err) {
-    res.status(401).json({ message: err.message });
+    if (err instanceof HttpError) return next(err);
+    next(new HttpError(401, err.message));
   }
 }
 

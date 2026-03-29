@@ -1,24 +1,26 @@
 const customerNoteService = require('../services/customer-note.service');
 const auditService = require('../services/audit.service');
+const HttpError = require('../utils/http-error');
+const { AUDIT_ACTIONS } = require('../constants/audit.constants');
 
-async function getByCustomerId(req, res) {
+async function getByCustomerId(req, res, next) {
   try {
     const notes = await customerNoteService.getByCustomerId(Number(req.params.id), req.user.role);
     res.json(notes);
   } catch (err) {
-    if (err.message === 'Khong tim thay khach hang') {
-      return res.status(404).json({ message: err.message });
+    if (err.message === 'Không tìm thấy khách hàng') {
+      return next(new HttpError(404, err.message));
     }
 
-    res.status(500).json({ message: err.message });
+    next(err);
   }
 }
 
-async function create(req, res) {
+async function create(req, res, next) {
   const content = typeof req.body.content === 'string' ? req.body.content.trim() : '';
 
   if (!content) {
-    return res.status(400).json({ message: 'Noi dung ghi chu khong duoc de trong' });
+    return next(new HttpError(400, 'Nội dung ghi chú không được để trống'));
   }
 
   try {
@@ -31,26 +33,26 @@ async function create(req, res) {
 
     await auditService.createLog({
       userId: req.user.id,
-      action: 'ADD_CUSTOMER_NOTE',
+      action: AUDIT_ACTIONS.ADD_CUSTOMER_NOTE,
       entityType: 'customer_note',
       entityId: result.note.id,
-      description: `${req.user.username} da them ghi chu cham soc cho khach hang "${result.customer_name}"`
+      description: `${req.user.username} đã thêm ghi chú chăm sóc cho khách hàng "${result.customer_name}"`
     });
 
     res.status(201).json({
-      message: 'Them ghi chu thanh cong',
+      message: 'Thêm ghi chú thành công',
       note: result.note
     });
   } catch (err) {
-    if (err.message === 'Khong tim thay khach hang') {
-      return res.status(404).json({ message: err.message });
+    if (err.message === 'Không tìm thấy khách hàng') {
+      return next(new HttpError(404, err.message));
     }
 
-    if (err.message === 'Noi dung ghi chu khong duoc de trong') {
-      return res.status(400).json({ message: err.message });
+    if (err.message === 'Nội dung ghi chú không được để trống') {
+      return next(new HttpError(400, err.message));
     }
 
-    res.status(500).json({ message: err.message });
+    next(err);
   }
 }
 
