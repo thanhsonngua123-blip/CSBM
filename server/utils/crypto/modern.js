@@ -25,7 +25,7 @@ function buildMacData(ivBytes, cipherBytes) {
 function isModernCiphertext(value) {
   return typeof value === 'string' && value.length > 4 && value[0] === 'v' && value[1] === '2' && value[2] === '$';
 }
-
+// tách chuỗi theo ký tự $
 function splitModernParts(ciphertext) {
   var parts = [];
   var current = '';

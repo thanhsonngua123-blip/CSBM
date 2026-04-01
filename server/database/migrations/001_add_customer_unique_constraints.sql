@@ -5,8 +5,5 @@ ALTER TABLE customers
   MODIFY phone VARCHAR(512) NULL,
   MODIFY id_number VARCHAR(512) NOT NULL;
 
-ALTER TABLE customers
-  ADD CONSTRAINT uq_customers_email UNIQUE (email);
-
-ALTER TABLE customers
-  ADD CONSTRAINT uq_customers_id_number UNIQUE (id_number);
+CREATE UNIQUE INDEX IF NOT EXISTS uq_customers_email ON customers(email);
+CREATE UNIQUE INDEX IF NOT EXISTS uq_customers_id_number ON customers(id_number);

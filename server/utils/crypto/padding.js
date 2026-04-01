@@ -6,10 +6,6 @@ function addPkcs7Padding(bytes) {
   var result = copyBytes(bytes);
   var paddingLength = BLOCK_SIZE - (result.length % BLOCK_SIZE);
 
-  if (paddingLength === 0) {
-    paddingLength = BLOCK_SIZE;
-  }
-
   for (var i = 0; i < paddingLength; i++) {
     result[result.length] = paddingLength;
   }

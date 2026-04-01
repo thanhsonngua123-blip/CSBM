@@ -3,7 +3,7 @@ const HttpError = require('../utils/http-error');
 
 const AUTH_COOKIE_NAME = process.env.AUTH_COOKIE_NAME || 'auth_token';
 const AUTH_COOKIE_MAX_AGE_MS = 8 * 60 * 60 * 1000;
-
+// Hàm xây dựng tùy chọn cookie cho việc lưu token đăng nhập
 function buildAuthCookieOptions() {
   return {
     httpOnly: true,
@@ -13,7 +13,7 @@ function buildAuthCookieOptions() {
     path: '/'
   };
 }
-
+// Hàm xây dựng tùy chọn cookie để xóa cookie khi đăng xuất
 function buildClearCookieOptions() {
   return {
     httpOnly: true,
@@ -22,7 +22,7 @@ function buildClearCookieOptions() {
     path: '/'
   };
 }
-
+// Hàm xử lý đăng nhập
 async function login(req, res, next) {
   try {
     const { username, password } = req.body;
@@ -39,7 +39,7 @@ async function login(req, res, next) {
     next(new HttpError(401, err.message));
   }
 }
-
+// Hàm xử lý đăng xuất
 async function logout(req, res) {
   res.clearCookie(AUTH_COOKIE_NAME, buildClearCookieOptions());
   res.json({ message: 'Đăng xuất thành công' });

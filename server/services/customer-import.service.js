@@ -10,7 +10,7 @@ function isBlank(value) {
 function normalizeText(value) {
   return typeof value === 'string' ? value.trim() : '';
 }
-
+// Loại bỏ dấu tiếng Việt và ký tự đặc biệt để chuẩn hóa header
 function stripDiacritics(value) {
   return normalizeText(value)
     .replace(/Đ/g, 'D')
@@ -263,7 +263,5 @@ function buildCustomerExportWorkbook(customers, role) {
 module.exports = {
   parseExcelFile,
   importRowsFromWorksheet,
-  buildCustomerExportWorkbook,
-  formatCreatedBy,
-  formatDateTime
+  buildCustomerExportWorkbook
 };

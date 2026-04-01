@@ -185,7 +185,8 @@ function hmacSha256(keyBytes, messageBytes) {
   while (normalizedKey.length < blockSize) {
     normalizedKey[normalizedKey.length] = 0;
   }
-
+//innerpad = key XOR 0x36
+//outerpad = key XOR 0x5c
   var innerPad = [];
   var outerPad = [];
 

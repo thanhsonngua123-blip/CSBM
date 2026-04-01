@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 
 const AUTH_COOKIE_NAME = process.env.AUTH_COOKIE_NAME || 'auth_token';
-
+//parse cookie header to object
 function parseCookies(cookieHeader) {
   const cookies = {};
 
@@ -31,7 +31,7 @@ function parseCookies(cookieHeader) {
 
   return cookies;
 }
-
+// Lấy token từ cookie hoặc header
 function getTokenFromRequest(req) {
   const cookies = parseCookies(req.headers.cookie);
   if (cookies[AUTH_COOKIE_NAME]) {
@@ -43,7 +43,7 @@ function getTokenFromRequest(req) {
   }
   return '';
 }
-
+// Middleware xác thực JWT
 function authenticate(req, res, next) {
   const token = getTokenFromRequest(req);
   if (!token) {
@@ -57,7 +57,7 @@ function authenticate(req, res, next) {
     return res.status(401).json({ message: 'Token không hợp lệ' });
   }
 }
-
+// Middleware phân quyền theo vai trò
 function authorize(...roles) {
   return (req, res, next) => {
     if (!roles.includes(req.user.role)) {

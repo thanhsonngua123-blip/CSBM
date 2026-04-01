@@ -1,4 +1,5 @@
 const pool = require('../config/db');
+const { AUDIT_ACTIONS } = require('../constants/audit.constants');
 
 async function createLog({ userId, action, entityType, entityId, description }) {
   await pool.query(
@@ -124,7 +125,7 @@ function buildImportErrorDescription(user, details) {
 async function recordImportError(user, details) {
   await createLog({
     userId: user.id,
-    action: 'IMPORT_CUSTOMERS_ERROR',
+    action: AUDIT_ACTIONS.IMPORT_CUSTOMERS_ERROR,
     entityType: 'customer',
     entityId: null,
     description: buildImportErrorDescription(user, details)
@@ -139,7 +140,7 @@ async function recordIntegrityAlerts(user, customers) {
 
     await createLogIfMissing({
       userId: user.id,
-      action: 'DETECT_TAMPERED_CUSTOMER_DATA',
+      action: AUDIT_ACTIONS.DETECT_TAMPERED_CUSTOMER_DATA,
       entityType: 'customer',
       entityId: customer.id,
       description: buildIntegrityAlertDescription(customer)

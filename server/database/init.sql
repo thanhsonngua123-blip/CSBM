@@ -12,9 +12,9 @@ CREATE TABLE IF NOT EXISTS users (
 CREATE TABLE IF NOT EXISTS customers (
   id INT AUTO_INCREMENT PRIMARY KEY,
   full_name VARCHAR(100) NOT NULL,
-  email VARCHAR(768) UNIQUE,
+  email VARCHAR(768) UNIQUE NOT NULL,
   phone VARCHAR(512),
-  id_number VARCHAR(512) UNIQUE,
+  id_number VARCHAR(512) UNIQUE NOT NULL,
   address TEXT,
   created_by INT NOT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -42,3 +42,11 @@ CREATE TABLE IF NOT EXISTS audit_logs (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (user_id) REFERENCES users(id)
 );
+
+-- Performance indexes
+CREATE INDEX IF NOT EXISTS idx_customers_created_at ON customers(created_at);
+CREATE INDEX IF NOT EXISTS idx_customers_created_by ON customers(created_by);
+CREATE INDEX IF NOT EXISTS idx_customer_notes_customer_id ON customer_notes(customer_id);
+CREATE INDEX IF NOT EXISTS idx_customer_notes_created_at ON customer_notes(created_at);
+CREATE INDEX IF NOT EXISTS idx_audit_logs_user_id ON audit_logs(user_id);
+CREATE INDEX IF NOT EXISTS idx_audit_logs_created_at ON audit_logs(created_at);

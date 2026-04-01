@@ -108,7 +108,7 @@ function maskSensitiveDisplay(fieldName, value) {
 
   return value;
 }
-
+// Tạo Object mô tả vấn đề toàn vẹn dữ liệu cho một trường cụ thể
 function buildIntegrityIssue(fieldName) {
   return {
     field: fieldName,
@@ -116,7 +116,7 @@ function buildIntegrityIssue(fieldName) {
     message: `${PROTECTED_FIELD_LABELS[fieldName] || fieldName} đã bị thay đổi trong CSDL`
   };
 }
-
+// Kiểm tra và giải mã giá trị nhạy cảm đã lưu, đồng thời phát hiện các vấn đề toàn vẹn dữ liệu
 function inspectStoredSensitiveValue(fieldName, storedValue, role) {
   const normalizedStored = normalizeText(storedValue);
 

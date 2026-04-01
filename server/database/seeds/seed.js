@@ -18,7 +18,7 @@ async function seed() {
       ['staff', staffPassword, 'staff']
     );
 
-    console.log('Seed data thÃ nh cÃ´ng!');
+    console.log('Seed data thành công!');
     console.log('  admin / admin123');
     console.log('  staff / staff123');
     process.exit(0);

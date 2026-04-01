@@ -64,9 +64,10 @@ function stringToBytes(value) {
   var i = 0;
 
   while (i < value.length) {
+    //1. Lấy mã Unicode của ký tự tại vị trí i
     var codeUnit = value.charCodeAt(i);
     var codePoint = codeUnit;
-
+    //2. Xử lý surrogate pair
     if (codeUnit >= 0xd800 && codeUnit <= 0xdbff && i + 1 < value.length) {
       var nextCodeUnit = value.charCodeAt(i + 1);
       if (nextCodeUnit >= 0xdc00 && nextCodeUnit <= 0xdfff) {
@@ -82,16 +83,21 @@ function stringToBytes(value) {
     if (codePoint <= 0x7f) {
       bytes[index] = codePoint;
       index++;
-    } else if (codePoint <= 0x7ff) {
+    } 
+    // 110xxxxx 10xxxxxx
+    else if (codePoint <= 0x7ff) {
       bytes[index] = 0xc0 | (codePoint >>> 6);
       bytes[index + 1] = 0x80 | (codePoint & 0x3f);
       index = index + 2;
-    } else if (codePoint <= 0xffff) {
+    } 
+    // 1110xxxx 10xxxxxx 10xxxxxx
+    else if (codePoint <= 0xffff) {
       bytes[index] = 0xe0 | (codePoint >>> 12);
       bytes[index + 1] = 0x80 | ((codePoint >>> 6) & 0x3f);
       bytes[index + 2] = 0x80 | (codePoint & 0x3f);
       index = index + 3;
     } else {
+      // 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
       bytes[index] = 0xf0 | (codePoint >>> 18);
       bytes[index + 1] = 0x80 | ((codePoint >>> 12) & 0x3f);
       bytes[index + 2] = 0x80 | ((codePoint >>> 6) & 0x3f);

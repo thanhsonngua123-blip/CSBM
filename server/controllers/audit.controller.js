@@ -1,5 +1,5 @@
 const auditService = require('../services/audit.service');
-
+//Xem danh sách nhật ký hệ thống
 async function getAll(req, res, next) {
   try {
     const result = await auditService.getAll({
@@ -14,7 +14,7 @@ async function getAll(req, res, next) {
     next(err);
   }
 }
-
+//Xóa toàn bộ nhật ký hệ thống
 async function clearAll(req, res, next) {
   try {
     const result = await auditService.clearAll();
