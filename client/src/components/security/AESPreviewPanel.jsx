@@ -9,13 +9,14 @@ function MetaBadge({ label, value }) {
 }
 
 function AESPreviewPanel({ preview, loading, inputValue, onRefresh }) {
+  const format = 'v2$salt$iv$cipher$mac';
+
   return (
     <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Khu vực AES</p>
           <h2 className="mt-2 text-xl font-semibold text-slate-900">Mã hóa và giải mã theo hệ thống hiện tại</h2>
-          
         </div>
         <button
           type="button"
@@ -31,10 +32,11 @@ function AESPreviewPanel({ preview, loading, inputValue, onRefresh }) {
         <MetaBadge label="Mode" value={preview?.aes?.mode || 'AES-CBC'} />
         <MetaBadge label="Padding" value={preview?.aes?.padding || 'PKCS#7'} />
         <MetaBadge label="Integrity" value={preview?.aes?.integrity || 'HMAC-SHA256'} />
-        <MetaBadge label="Format" value={`${preview?.aes?.version || 'v2'}$iv$cipher$mac`} />
+        <MetaBadge label="Format" value={format} />
       </div>
 
       <div className="mt-5 grid gap-3">
+        <ResultBlock label="Salt" value={preview?.aes?.salt} mono />
         <ResultBlock label="IV" value={preview?.aes?.iv} mono />
         <ResultBlock label="Cipher (khối mã hóa)" value={preview?.aes?.cipher} mono />
         <ResultBlock label="HMAC" value={preview?.aes?.mac} mono />
