@@ -234,9 +234,4 @@ function decryptBlock(block, expandedKey) {
   return state;
 }
 
-module.exports = {
-  BLOCK_SIZE,
-  expandKey,
-  encryptBlock,
-  decryptBlock
-};
+module.exports = {BLOCK_SIZE,expandKey,encryptBlock,decryptBlock};
